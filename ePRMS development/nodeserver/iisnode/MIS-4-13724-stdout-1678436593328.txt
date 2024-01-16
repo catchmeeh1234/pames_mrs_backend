@@ -1,0 +1,38 @@
+listening on http://localhost:4301
+a user connected
+test
+test
+test
+test
+test
+Client disconnected: Ak1Fg2Mv6V5w68MgAAAB
+a user connected
+hello
+hello
+Client disconnected: CgWbMIKqT2wLMPCwAAAD
+a user connected
+a user connected
+test
+test
+Client disconnected: WZH02TVF58RdH_OUAAAF
+Client disconnected: fnROBD44cCSp5zdHAAAH
+a user connected
+a user connected
+test
+test
+Client disconnected: 6revExfhJUFLcvWuAAAJ
+Client disconnected: 0hdrEqbZuHADLtn6AAAL
+a user connected
+a user connected
+test
+test
+test
+test
+1
+1
+1
+2
+Client disconnected: f2bOa1oV0URzFAgPAAAN
+Client disconnected: X6ETkdHmNiwXoc0TAAAP
+a user connected
+test

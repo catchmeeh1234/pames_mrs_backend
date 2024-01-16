@@ -1,0 +1,64 @@
+* {
+  box-sizing: border-box;
+}
+
+@media print 
+{
+   @page
+   {
+    size: 8.27in 11.69in;
+    size: portrait;
+	margin: 0.7in 0.7in 0.5in 0.7in;
+  }
+}
+
+body {
+	font-family: "Times New Roman", Times, serif;
+	margin: 0;
+}
+
+table.border {
+  border: 2px solid black;
+  border-collapse: collapse;
+}
+
+tr.borderright_bottom td	{
+  border-top: none;
+  border-right: none;
+  border-bottom: 2px solid black;
+  border-left: none;
+}
+
+tr.border_bottom td	{
+  border-top: none;
+  border-right: 1px solid black;
+  border-bottom: 2px solid black;
+  border-left: 1px solid black;
+}
+
+tr.border_bottom2 td	{
+  border-top: none;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+}
+
+tr.borderlessright_bottom td	{
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  border-left: none;
+}
+
+tr.borderless_bottom td	{
+  border-top: none;
+  border-right: 1px solid black;
+  border-bottom: none;
+  border-left: 1px solid black;
+}
+
+.underline{
+    border-bottom: 1px solid black;
+    width: 100%;
+    display: block;
+}

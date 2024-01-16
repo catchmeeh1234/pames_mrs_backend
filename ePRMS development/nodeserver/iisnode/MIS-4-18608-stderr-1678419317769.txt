@@ -1,0 +1,15 @@
+Application has thrown an uncaught exception and is terminated:
+Error: Cannot find module 'socket.io'
+Require stack:
+- D:\php-htdocs\Smart Meter System\smartwatersystem-backend\nodeserver\index.js
+- C:\Program Files\iisnode\interceptor.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1075:15)
+    at Module._load (node:internal/modules/cjs/loader:920:27)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (D:\php-htdocs\Smart Meter System\smartwatersystem-backend\nodeserver\index.js:3:12)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
