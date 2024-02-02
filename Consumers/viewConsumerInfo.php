@@ -4,4 +4,4 @@
     $consumer_id = $_GET['consumer_id'];
 
     $obj = new Consumer();
-    echo json_encode($obj->fetchConsumerInfo($consumer_id));
+    echo json_encode($obj->fetchConsumerInfo($consumer_id), JSON_PRETTY_PRINT);

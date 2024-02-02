@@ -1,15 +1,19 @@
 <?php
+    require_once 'Auth.class.php';
 
     class User extends Connect {
         private $username;
         private $password;
+        private $authInstance;
 
-        public function __construct()
-        {
-            
+        public function __construct() {
+            $this->authInstance = new Auth();
         }
 
         public function loadNotificationsCounter($userid) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -28,6 +32,8 @@
         }
 
         public function login($username, $password) {
+            
+
             $this->username = $username;
             $this->password = $password;
 
@@ -44,26 +50,32 @@
 
             $count = $rowAuthLogin->rowCount();
             if ($count == 0) {
+                //http_response_code(401);
                 $arrayAuthLogin = array('status' => 'Invalid Credentials');
-                return json_encode($arrayAuthLogin);
+                return $arrayAuthLogin;
         
             } else {
-                session_start();
                 //$_SESSION['username'] = $this->username;
-        
-                foreach ($users as $user) {
-                    $_SESSION['userid'] = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['fullname'] = $user['fullname'];
-                }
-        
-                $arrayAuthLogin = array('userid' => $_SESSION['userid'], 'username' =>  $_SESSION['username'], 'fullname' =>  $_SESSION['fullname'], 'status' => 'Login Success');
+                //get JWT token
+                $authInstance = new Auth();
+                $jwt = $authInstance->getJWT($username);
+
+                $arrayAuthLogin = array(
+                    'token' => $jwt, 
+                    'userid' => $users[0]['id'], 
+                    'username' =>  $users[0]['username'],
+                    'fullname' =>  $users[0]['fullname'],
+                    'status' => 'Login Success'
+                );
                 
-                return json_encode($arrayAuthLogin);
+                return $arrayAuthLogin;
             }
         } 
 
         public function validateAuthorizationPassword($password) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $sql = "SELECT * FROM updatepassword WHERE approvepassword = ?";
@@ -81,6 +93,9 @@
         }
 
         public function fetchOneUserAccount($userid) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //pdo query
@@ -100,6 +115,9 @@
         }
 
         public function editUserAccount($userAccountDetails) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $obj = json_decode($userAccountDetails, true);
@@ -156,6 +174,9 @@
         }
 
         public function fetchAllUserAccounts() {
+            //validate JWT
+            //$this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //pdo query
@@ -174,6 +195,9 @@
         }
 
         public function fetchAccess() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //pdo query
@@ -192,6 +216,9 @@
         }
 
         public function resetUserPassword($userid) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $hashedPassword = md5('123456');
@@ -209,6 +236,9 @@
         }
 
         public function changeUserPassword($userAccountDetails, $id) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $obj = json_decode($userAccountDetails, true);
@@ -250,6 +280,9 @@
         }
 
         public function addUserAccount($userAccountDetails) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($userAccountDetails, true);
             $empId = $obj['Emp_ID'];
             $username = $obj['Username'];

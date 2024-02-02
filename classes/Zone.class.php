@@ -1,13 +1,15 @@
 <?php
 
     class Zone extends Connect {
-
-        public function __construct()
-        {
-            
+        private $authInstance;
+    
+        public function __construct() {
+            $this->authInstance = new Auth();
         }
 
         public function fetchZones() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
             $connection = $this->openConnection();
 
             //PDO query
@@ -25,6 +27,9 @@
         }
 
         public function updateZoneLastNumber($connection, $zone) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $sql = "UPDATE Zones SET LastNumber = LastNumber + 1 WHERE ZoneName = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$zone]);

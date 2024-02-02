@@ -1,7 +1,9 @@
 <?php
+
     spl_autoload_register("myAutoLoader");
 
     function myAutoLoader($className) {
+       
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestURI = $_SERVER['REQUEST_URI'];
 
@@ -20,6 +22,7 @@
                 strpos($url, 'Announcements') !== false ||
                 strpos($url, 'ScheduleCharges') !== false ||
                 strpos($url, 'OfficialReceipt') !== false ||
+                strpos($url, 'Authentication') !== false ||
                 strpos($url, 'Units') !== false
             ) {
             $path = '../classes/';

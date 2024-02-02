@@ -2,12 +2,16 @@
 
     class ReadingSettings extends Connect {
 
-        public function __construct()
-        {
-            
+        private $authInstance;
+
+        public function __construct() {
+            $this->authInstance = new Auth();
         }
 
         public function fetchReadingSettings($name, $zone) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+            
             $connection = $this->openConnection();
 
             if ($name === "All") {

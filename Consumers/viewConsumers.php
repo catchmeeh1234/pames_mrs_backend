@@ -6,4 +6,4 @@
     $top = $_GET['top'];
 
     $obj = new Consumer();
-    echo json_encode($obj->fetchConsumers($top));
+    echo json_encode($obj->fetchConsumers($top), JSON_PRETTY_PRINT);

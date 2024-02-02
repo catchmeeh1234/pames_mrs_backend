@@ -1,8 +1,16 @@
 <?php
+
     class Charges extends Connect {
-        public function __construct() {}
+        private $authInstance;
+
+        public function __construct() {
+            $this->authInstance = new Auth();        
+        }
 
         public function fetchCharges() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -20,6 +28,9 @@
         }
 
         public function fetchChargeInfo($particular) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
             //PDO query
             $sql = "SELECT * FROM Charges WHERE Particular = ?";
@@ -36,6 +47,9 @@
         }
 
         public function addCharges($chargeInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($chargeInfo, true);
 
             $connection = $this->openConnection();
@@ -57,6 +71,9 @@
         }
 
         public function updateCharges($chargeInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($chargeInfo, true);
 
             $connection = $this->openConnection();

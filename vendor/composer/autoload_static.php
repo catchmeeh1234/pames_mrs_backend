@@ -11,6 +11,10 @@ class ComposerStaticInit162adb2884fdd010beda51227eee852f
         array (
             'Mike42\\' => 7,
         ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
         'E' => 
         array (
             'Endroid\\QrCode\\' => 15,
@@ -29,6 +33,10 @@ class ComposerStaticInit162adb2884fdd010beda51227eee852f
         'Mike42\\' => 
         array (
             0 => __DIR__ . '/..' . '/mike42/escpos-php/src/Mike42',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Endroid\\QrCode\\' => 
         array (

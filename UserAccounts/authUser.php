@@ -8,4 +8,4 @@
     $password = $_GET['password'];
 
     $user = new User();
-    echo $user->login($username, $password);
+    echo json_encode($user->login($username, $password));

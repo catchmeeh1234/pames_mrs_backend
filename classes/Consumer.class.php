@@ -1,15 +1,28 @@
 <?php
-    require_once 'Zone.class.php';
+    //require_once 'Zone.class.php';
 
     class Consumer extends Connect {
+        private $authInstance;
+        private $zoneInstance;
 
-        public function __construct() {}
+        public function __construct() {
+            $this->authInstance = new Auth(); 
+            $this->zoneInstance = new Zone();
+        }
 
         public function fetchConsumers($top) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
-            $sql = "SELECT $top * FROM Consumers";
+            if ($top == "all") {
+                $sql = "SELECT * FROM Consumers ORDER BY consumer_id asc";
+            } else {   
+                $sql = "SELECT TOP $top * FROM Consumers ORDER BY consumer_id asc";
+            }
+
             $stmt = $connection->prepare($sql);
             $stmt->execute();
             $result = $stmt->fetchAll();
@@ -23,6 +36,9 @@
         }
 
         public function searchConsumer($search, $zone, $status) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -45,6 +61,9 @@
         }
 
         public function fetchConsumerInfo($consumer_id) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -62,6 +81,9 @@
         }
 
         public function fetchConsumerInfoByAccNo($accno) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -79,6 +101,9 @@
         }
 
         public function fetchConsumerCharges($account_no) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -96,6 +121,9 @@
         }
 
         public function addScheduleCharge($scheduleChargeInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($scheduleChargeInfo, true);
 
             $connection = $this->openConnection();
@@ -167,6 +195,9 @@
         }
 
         public function editScheduleCharge($scheduleChargeInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($scheduleChargeInfo, true);
 
             $connection = $this->openConnection();
@@ -229,6 +260,9 @@
         }
 
         public function addConsumer($consumerInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -237,7 +271,7 @@
                 $obj = json_decode($consumerInfo, true);
                 $account_no =  $obj['AccountNo'];
 
-                $this->validateAccountNo($connection, $account_no);
+                $this->validateAccountNo($account_no, $connection);
 
                 $lastname = trim($obj['Lastname']);
                 $firstname = trim($obj['Firstname']);
@@ -291,8 +325,7 @@
                 } 
                 
                 //update zone's last number
-                $zoneInstance = new Zone();
-                $zoneInstance->updateZoneLastNumber($connection, $zone);
+                $this->zoneInstance->updateZoneLastNumber($connection, $zone);
 
                 $connection->commit();
                 $this->closeConnection();
@@ -306,6 +339,9 @@
         }
 
         public function updateConsumerInfo($consumerInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $obj = json_decode($consumerInfo, true);
@@ -334,6 +370,9 @@
         }
 
         public function consumerStatuses() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -351,6 +390,9 @@
         }
 
         public function consumerSummary() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $consumerSummary = [];
             $connection = $this->openConnection();
 
@@ -382,7 +424,13 @@
             return $consumerSummary;
         }
 
-        public function validateAccountNo($connection, $accno) {
+        public function validateAccountNo($accno, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $sql = "SELECT AccountNo FROM Consumers WHERE AccountNo = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$accno]);
@@ -393,7 +441,13 @@
             }
         }
 
-        public function viewActiveConsumers($connection, $zone) {
+        public function viewActiveConsumers($zone, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             //check if bill is already created by zone
             $sql = "SELECT * from Consumers where [Zone] = '$zone' and CustomerStatus = 'Active' order by ReadingSeqNo asc";
             $stmt = $connection->prepare($sql);
@@ -409,8 +463,13 @@
 
         }
 
-        public function updateAccountStatus($accountStatusInfo) {
-            $connection = $this->openConnection();
+        public function updateAccountStatus($accountStatusInfo, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $obj = json_decode($accountStatusInfo, true);
             try {
                 $connection->beginTransaction();
@@ -419,9 +478,9 @@
                 $dateLastDisconnected = $obj["date"];
                 $accountNo = $obj["accountNo"];
 
-                $this->addAccountStatus($connection, $obj);
-                $this->addAccountHistory($connection, $obj);
-                $this->updateLastDisconnectedAndStatus($connection, $dateLastDisconnected, $customerStatus, $accountNo);
+                $this->addAccountStatus($obj, $connection);
+                $this->addAccountHistory($obj, $connection);
+                $this->updateLastDisconnectedAndStatus($dateLastDisconnected, $customerStatus, $accountNo, $connection);
 
                 $connection->commit();
                 $this->closeConnection();
@@ -434,7 +493,13 @@
 
         }
 
-        public function addAccountStatus($connection, $obj) {
+        public function addAccountStatus($obj, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $date = $obj["date"];
             $accountNo = $obj["accountNo"];
             $status = $obj["customerStatus"];
@@ -476,7 +541,13 @@
             }
         }
 
-        public function addAccountHistory($connection, $obj) {
+        public function addAccountHistory($obj, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $currentDate = date("Y-m-d");
             $accountNo = $obj["accountNo"];
             $category = "status";
@@ -499,7 +570,12 @@
             }
         }
 
-        public function updateLastDisconnectedAndStatus($connection, $dateLastDisconnected, $customerStatus, $accountNo) {
+        public function updateLastDisconnectedAndStatus($dateLastDisconnected, $customerStatus, $accountNo, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
 
             if ($customerStatus === "Disconnected") {
                 $sql = "UPDATE Consumers set DateLastDisconnected = ?, CustomerStatus = ? where AccountNo = ?";
@@ -516,6 +592,9 @@
         }
 
         public function fetchAccountStatusTable($accountNo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             //PDO query
@@ -534,6 +613,9 @@
 
         public function updateAdvancePayment($data, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                
                 $connection = $this->openConnection();
             }
 

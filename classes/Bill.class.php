@@ -1,4 +1,5 @@
 <?php
+
     require_once 'LogicNumber.class.php';
     require_once 'Consumer.class.php';
     require_once 'ScheduleCharges.class.php';
@@ -9,10 +10,16 @@
     use Mike42\Escpos\Printer;
 
     class Bill extends Connect {
+        private $authInstance;
 
-        public function __construct() {}
+        public function __construct() {
+            $this->authInstance = new Auth();
+        }
 
         public function fetchBills($accno) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             if ($accno === "All") {
@@ -55,6 +62,8 @@
 
         public function fetchBillCharges($billno, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -80,6 +89,8 @@
 
         public function fetchPendingBills($connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -98,6 +109,9 @@
         }
 
         public function prepareBills($zones, $billingMonth, $meterReader, $createdBy) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
             $preparedBills = [];
 
@@ -115,7 +129,7 @@
 
                     //SELECT ALL ACTIVE CONSUMERS FROM THE SPECIFIC ZONE
                     $consumerInstance = new Consumer();
-                    $consumers = $consumerInstance->viewActiveConsumers($connection, $zone);
+                    $consumers = $consumerInstance->viewActiveConsumers($zone, $connection);
 
                     //CHECK IF THERE IS AN EXISTING BILL FOR THAT PARTICULAR MONTH FOR THE PARTICULAR CONSUMER
                     //SKIP THAT CONSUMER IF HE ALREADY HAVE ONE
@@ -180,6 +194,9 @@
         }
 
         public function createBills($preparedBills, $billingMonth, $zones) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -264,6 +281,9 @@
         }
 
         public function createBill($billInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -330,6 +350,9 @@
         }
 
         public function updateBill($billInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -370,6 +393,9 @@
         }
 
         public function postBill($billno, $accno, $postedBy) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -539,6 +565,9 @@
         }
 
         public function cancelBill($billInfo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -846,6 +875,7 @@
         }
 
         public function addToBillsTemp($connection, $billingMonth, $zones) {
+
             $newZones = "'" . implode("','", $zones) . "'";
             // Enable identity insert
             //$connection->exec("SET IDENTITY_INSERT $table_name ON");
@@ -886,6 +916,9 @@
 
 
         public function searchBill($billingMonth, $billStatus, $zone) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
 
@@ -939,6 +972,7 @@
         }
 
         public function updateBillStatus($connection, $tableName, $billStatus, $billno, $postedBy=null) {
+
             if ($postedBy === null) {
                 if ($tableName == "Bills") {
                     $sql = "UPDATE Bills SET [BillStatus] = ? WHERE BillNo = ?";
@@ -1107,6 +1141,9 @@
         }
 
         public function printBill($receipt) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($receipt, true);
             $billInfo = $obj["billInfo"];
 
@@ -1233,6 +1270,9 @@
         public function fetchUnpaidBills($data, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
             
@@ -1258,6 +1298,8 @@
         public function fetchUnpaidBillCharges($data, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -1278,7 +1320,13 @@
             return $result;
         }
 
-        public function isBillPaid($connection, $billNumber) {
+        public function isBillPaid($billNumber, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $sql = "SELECT * FROM Bills WHERE [isCollectionCreated] = 'Yes' AND [BillNo]= ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$billNumber]);
@@ -1301,7 +1349,13 @@
             return round($earlyPayment, 2);
         }
 
-        public function updateCrNoIsCollectionCreatedEarlyPayment($connection, $billData) {
+        public function updateCrNoIsCollectionCreatedEarlyPayment($billData, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $sql = "UPDATE Bills set IsCollectionCreated = ?, CRNo = ?, earlyPaymentDiscount= ? WHERE BillNo = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
@@ -1316,6 +1370,8 @@
         public function updateCrNoIsCollectionCreated($data, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -1333,7 +1389,13 @@
             }
         }
 
-        public function tagBillAsPaid($isPaid, $datePaid, $CRNo, $connection) {
+        public function tagBillAsPaid($isPaid, $datePaid, $CRNo, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $sql = "Update Bills set isPaid = ?, DatePaid = ? WHERE CRNo= ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
@@ -1347,7 +1409,13 @@
             }
         }
 
-        public function tagBillChargesAsPaid($isPaid, $datePaid, $CRNo, $connection) {
+        public function tagBillChargesAsPaid($isPaid, $datePaid, $CRNo, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                $connection = $this->openConnection();
+            }
+
             $sql = "Update BillCharges set isPaid = ?, DatePaid = ? WHERE CRNo= ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
@@ -1363,6 +1431,9 @@
 
         public function fetchBillAdjustmentByAccNo($accountNumber, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1382,6 +1453,9 @@
 
         public function fetchBillAdjustmentByBillNo($billNumber, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1401,6 +1475,9 @@
 
         public function fetchBillAdjustmentByRefNo($refNo, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1422,6 +1499,9 @@
             $obj = json_decode($billAdjustmentDetails, true);
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1474,6 +1554,9 @@
             $obj = json_decode($billAdjustmentDetails, true);
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1502,6 +1585,9 @@
             $billInfo = $obj['BillInfo'];
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1592,6 +1678,9 @@
             $billInfo = $obj['BillInfo'];
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 
@@ -1683,6 +1772,9 @@
 
         public function validateRefNo($tableName, $columnName, $number, $connection=null) {
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
                 $connection = $this->openConnection();
             }
 

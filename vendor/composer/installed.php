@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => NULL,
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'bf6f2792195c63e6751962fb3d4913fef56b9c0b',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => NULL,
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'bf6f2792195c63e6751962fb3d4913fef56b9c0b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -43,6 +43,15 @@
             'reference' => 'a75c913b0e4d6ad275e49a2c1de1cacffc6c2184',
             'type' => 'library',
             'install_path' => __DIR__ . '/../endroid/qr-code',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'firebase/php-jwt' => array(
+            'pretty_version' => 'v6.10.0',
+            'version' => '6.10.0.0',
+            'reference' => 'a49db6f0a5033aef5143295342f1c95521b075ff',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../firebase/php-jwt',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

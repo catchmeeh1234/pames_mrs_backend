@@ -1,6 +1,6 @@
 <?php 
     header('Access-Control-Allow-Origin: *');
-
+    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     //phpinfo();
     //print_r(PDO::getAvailableDrivers());
 
@@ -11,7 +11,12 @@
         private $user = "sa";
         private $password = 'p@$$w0rd';
     
-        private $options = array(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);
+        private $options = array(
+            PDO::ATTR_ERRMODE, 
+            PDO::ERRMODE_EXCEPTION, 
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_STRINGIFY_FETCHES, false,
+        );
         protected $conn;
 
         public function __construct() {}
@@ -73,4 +78,4 @@
     //     echo phpinfo();
     //     //echo "Connected";
     // }
- ?>
+ 

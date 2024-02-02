@@ -2,9 +2,16 @@
 
     class LogicNumber extends Connect {
 
-        public function __construct() {}
+        private $authInstance;
+
+        public function __construct() {
+            $this->authInstance = new Auth();
+        }
 
         public function fetchLogicNumber($remarks) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             if ($remarks === "All") {
@@ -28,6 +35,9 @@
         }   
 
         public function updateLogicNumber($remarks, $value) {
+             //validate JWT
+             $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+             
             $connection = $this->openConnection();
 
             if ($value == 1) {

@@ -6,9 +6,15 @@
 
     class OfficialReceipt extends Connect {
 
-        public function __construct() {}
+        private $authInstance;
+
+        public function __construct() {
+            $this->authInstance = new Auth();
+        }
 
         public function createOR($orDetails) {
+             //validate JWT
+             $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
             $connection = $this->openConnection();
 
             //get current time
@@ -28,12 +34,12 @@
                 $chargesInstance = new Charges();
 
                 //Validate OR number
-                $this->validateORNumber($connection, $orNumber);
+                $this->validateORNumber($orNumber, $connection);
 
                 //check if the selected bill is already paid
                 foreach ($bills as $bill) {
                     if ($bill["Checked"] == true) {
-                        $billInstance->isBillPaid($connection, $bill["billNumber"]);
+                        $billInstance->isBillPaid($bill["billNumber"], $connection);
                     }
                 }
  
@@ -53,7 +59,7 @@
                     "CollectionStatus" => "Pending",
                     "PaymentType" => $obj["modeOfPayment"],
                 ];
-                $this->addCollectionDetails($connection, $orData);
+                $this->addCollectionDetails($orData, $connection);
 
 
 
@@ -129,7 +135,7 @@
                             "earlyPaymentDiscount" => $earlyPaymentTotal,
                             "billNo" => $bill["billNumber"],
                         ];                        
-                        $billInstance->updateCrNoIsCollectionCreatedEarlyPayment($connection, $billData);
+                        $billInstance->updateCrNoIsCollectionCreatedEarlyPayment($billData, $connection);
 
                         //Add Update BillCharges if necessary
 
@@ -152,7 +158,14 @@
             }
         }  
         
-        public function validateORNumber($connection, $orNumber) {
+        public function validateORNumber($orNumber, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
+
             $sql = "SELECT * FROM Collection_Details WHERE CRNo = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$orNumber]);
@@ -167,7 +180,13 @@
 
         
 
-        public function addCollectionDetails($connection, $orData) {
+        public function addCollectionDetails($orData, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
 
             //advance payment is hard coded to 0.00
             $sql = "INSERT INTO Collection_Details (
@@ -188,7 +207,14 @@
             }
         }
 
-        public function addCollectionBilling($connection, $orData) {
+        public function addCollectionBilling($orData, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
+
             $sql = "INSERT INTO CollectionBilling (
                 CRNo, AccountNo, AccountName, [Address], [Zone], BillingDate, 
                 PaymentDate, BillType, BillNo, AmountDue, Discount, earlyPaymentDiscount,  
@@ -208,7 +234,14 @@
 
         }
 
-        public function addCollectionCharges($connection, $orData) {
+        public function addCollectionCharges($orData, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
+
             $sql = "INSERT INTO CollectionCharges (
                 CRNo, BillNo, Particulars, Amount, ChargeID, ChargeType, ChargeRate,
                 Category, Entry, CollectionChargesStatus) 
@@ -226,6 +259,9 @@
         }
 
         public function fetchORDetailsByAccountNo($accountNumber) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
             $sql = "SELECT * FROM Collection_Details WHERE AccountNo = ?";
             $stmt = $connection->prepare($sql);
@@ -244,6 +280,8 @@
         public function fetchORBillingByORNo($orNumber, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -264,6 +302,8 @@
         public function fetchORChargesByORNo($orNumber, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -282,6 +322,9 @@
         }
 
         public function fetchLastPaidORByAccountNo($accountNumber) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
             $sql = "SELECT * FROM Collection_Details WHERE AccountNo = ?";
             $stmt = $connection->prepare($sql);
@@ -298,6 +341,9 @@
         }
 
         public function fetchPendingOR() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
             $sql = "SELECT * FROM Collection_Details WHERE CollectionStatus = 'Pending'";
             $stmt = $connection->prepare($sql);
@@ -314,6 +360,9 @@
         }
 
         public function postOR($orDetails) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             try {
@@ -480,7 +529,13 @@
             }
         }
 
-        public function updateCollectionDetailsStatus($status, $collectionID, $connection) {
+        public function updateCollectionDetailsStatus($status, $collectionID, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
             $sql = "UPDATE Collection_Details Set CollectionStatus = ? WHERE CollectionID = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$status, $collectionID]);
@@ -492,7 +547,14 @@
             }
         }
 
-        public function updateCollectionBillingStatus($status, $crno, $connection) {
+        public function updateCollectionBillingStatus($status, $crno, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
+            
             $sql = "Update CollectionBilling Set CollectionBillingStatus = ? WHERE CRNo = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$status, $crno]);
@@ -504,7 +566,14 @@
             }
         }
 
-        public function updateCollectionChargesStatus($status, $crno, $connection) {
+        public function updateCollectionChargesStatus($status, $crno, $connection=null) {
+            if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
+                $connection = $this->openConnection();
+            }
+
             $sql = "Update CollectionCharges Set CollectionChargesStatus = ? WHERE CRNo = ?";
             $stmt = $connection->prepare($sql);
             $stmt->execute([$status, $crno]);
@@ -517,6 +586,9 @@
         }
 
         public function cancelOR($orDetails) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $obj = json_decode($orDetails, true);
             $collectionStatus = $obj['CollectionStatus'];
             $collectionId = $obj['CollectionID'];
@@ -726,6 +798,9 @@
         public function addCollectionCancelled($collectionCancelledData, $connection=null) {
 
             if ($connection == null) {
+                 //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+                
                 $connection = $this->openConnection();
             }
 

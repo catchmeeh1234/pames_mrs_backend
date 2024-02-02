@@ -1,12 +1,17 @@
 <?php
 
     class ConsumerLedger extends Connect {
+        private $authInstance;
 
-        public function __construct() {}
+        public function __construct() {
+            $this->authInstance = new Auth();
+        }
 
         public function addLedgerEntry($ledgerData, $connection=null) {
 
             if ($connection == null) {
+                //validate JWT
+                $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
                 $connection = $this->openConnection();
             }
 
@@ -46,6 +51,9 @@
         }
 
         public function viewConsumerLedgerData($account_no) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+            
             $connection = $this->openConnection();
 
             //PDO query

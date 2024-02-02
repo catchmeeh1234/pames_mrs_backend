@@ -2,9 +2,16 @@
 
     class Announcement extends Connect {
 
-        public function __construct() {}
+        private $authInstance;
+
+        public function __construct() {
+            $this->authInstance = new Auth();
+        }
 
         public function updateAnnouncementMessage($message) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $sql = "UPDATE tblannouncement SET Announce = ? WHERE AnnounceID = 1";
@@ -20,6 +27,9 @@
             }
         }
         public function updateAnnouncementContactNo($contactNo) {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $sql = "UPDATE tblannouncement SET Announce = ? WHERE AnnounceID = 2";
@@ -35,6 +45,9 @@
             }
         }  
         public function viewAnnouncement() {
+            //validate JWT
+            $this->authInstance->validateJWT($_SERVER['HTTP_AUTHORIZATION']);
+
             $connection = $this->openConnection();
 
             $sql = "SELECT * FROM tblannouncement";
